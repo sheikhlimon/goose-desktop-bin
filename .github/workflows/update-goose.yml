@@ -1,0 +1,87 @@
+name: Auto-update Goose AUR package
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # every Monday at 6 AM UTC
+  workflow_dispatch: # allows manual triggering
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+
+
+      - name: Run in Arch Linux container
+        run: |
+          # Pull the Arch Linux image
+          docker pull archlinux:latest
+          
+          # Create a script to run inside the container
+          cat > update_script.sh << 'EOF'
+          #!/bin/bash
+          
+          # Install required tools in Arch container
+          pacman -Sy --noconfirm base-devel git wget jq pacman-contrib
+          
+          # Create a non-root user for makepkg
+          useradd -m -U -s /bin/bash builduser
+          chown -R builduser:builduser /github/workspace
+          
+          # Get latest Goose release version
+          ver=$(curl -s https://api.github.com/repos/block/goose/releases/latest | jq -r .tag_name | sed 's/^v//')
+          echo "Latest Goose version: $ver"
+
+          # Update PKGBUILD
+          sed -i "s/^pkgver=.*/pkgver=$ver/" /github/workspace/PKGBUILD
+          sed -i "s#source=.*#source=(\\\"goose_${ver}_amd64.deb::https://github.com/block/goose/releases/download/v${ver}/goose_${ver}_amd64.deb\\\")#" /github/workspace/PKGBUILD
+
+          # Run updpkgsums and makepkg as non-root user
+          cd /github/workspace
+          sudo -u builduser updpkgsums
+          sudo -u builduser makepkg --printsrcinfo > .SRCINFO
+          EOF
+          
+          chmod +x update_script.sh
+          
+          # Run the script inside the container
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/github/workspace" \
+            -v "$PWD/update_script.sh:/update_script.sh" \
+            -w /github/workspace \
+            archlinux:latest \
+            /update_script.sh
+          
+          # Clean up the script
+          rm update_script.sh
+
+      - name: Get version for commit message
+        id: get_version
+        run: |
+          VERSION=$(grep "^pkgver=" PKGBUILD | cut -d'=' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Commit & push changes
+        run: |
+          git remote -v
+          git status
+          git add PKGBUILD .SRCINFO
+          if git diff --cached --quiet; then
+            echo "No updates needed."
+            exit 0
+          fi
+          git commit -m "update version to ${{ steps.get_version.outputs.version }} and update source"
+          git push origin master
