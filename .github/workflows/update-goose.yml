@@ -65,8 +65,9 @@ jobs:
             archlinux:latest \
             /update_script.sh
           
-          # Clean up the script
-          rm update_script.sh
+          # Fix permissions and clean up
+          sudo chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
+          rm -f update_script.sh
 
       - name: Get version for commit message
         id: get_version

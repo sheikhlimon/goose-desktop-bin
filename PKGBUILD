@@ -10,7 +10,7 @@ provides=('goose-desktop')
 conflicts=('goose-desktop')     # conflict only with the source-built variant, not with codename-goose-bin
 depends=('glibc')
 # tip: replace SKIP with the real SHA256 (use updpkgsums)
-source=("goose_${pkgver}_amd64.deb::https://github.com/block/goose/releases/download/v${pkgver}/goose_${pkgver}_amd64.deb")
+source=("goose_1.12.1_amd64.deb::https://github.com/block/goose/releases/download/v1.12.1/goose_1.12.1_amd64.deb")
 sha256sums=('0351c7f49fc7f5ab160421ffe8055199ec2d2ab0d03dd6bd06f477aca81f2645')
 
 build() { :; }
