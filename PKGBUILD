@@ -1,7 +1,7 @@
 # Maintainer: Igor Aguiar Rodrigues <igor_aguiar@yahoo.com.br>
 pkgname=goose-desktop-bin
-pkgver=1.13.0
-pkgrel=1
+pkgver=1.13.1
+pkgrel=2
 pkgdesc="Goose Desktop (prebuilt .deb repack) — an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and test with any LLM"
 arch=('x86_64')
 url="https://github.com/block/goose"
@@ -10,8 +10,8 @@ provides=('goose-desktop')
 conflicts=('goose-desktop')     # conflict only with the source-built variant, not with codename-goose-bin
 depends=('glibc')
 # tip: replace SKIP with the real SHA256 (use updpkgsums)
-source=("goose_1.13.0_amd64.deb::https://github.com/block/goose/releases/download/v1.13.0/goose_1.13.0_amd64.deb")
-sha256sums=('4e1319ca0a4a996a5ab2571b43d71a1ef1d84a3e10b4dcee4d1293b72a909c70')
+source=("goose_1.13.1_amd64.deb::https://github.com/block/goose/releases/download/v1.13.1/goose_1.13.1_amd64.deb")
+sha256sums=('ec6f92982cb4a01a5972321f65be61758a655aff18eba4072b3b7e8c3bc83b8c')
 
 build() { :; }
 
