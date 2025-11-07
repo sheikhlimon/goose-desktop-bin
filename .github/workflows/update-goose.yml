@@ -2,7 +2,7 @@ name: Auto-update Goose AUR package
 
 on:
   schedule:
-    - cron: "0 6 * * 1" # every Monday at 6 AM UTC
+    - cron: "0 17 * * *" # daily at 5 PM UTC (1 PM EST/EDT)
   workflow_dispatch: # allows manual triggering
 
 permissions:
